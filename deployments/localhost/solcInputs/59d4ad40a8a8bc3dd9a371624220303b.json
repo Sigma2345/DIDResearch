@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/MultiSigDID.sol": {
+      "content": "// SPDX-License-Identifier: BSD\npragma solidity ^0.8.9;\n\n/**\n * @title MultiSig DID Contract\n * @author Mohammad Touseef, Aryan, Mudit Jain, Dr. Harkeerat Kaur\n * @notice This contract is just used for demonstration and experimental purposes\n */\ncontract MultiSigDID{\n\n    enum STATUS{\n        ACTIVE,\n        REVOKED\n    }\n\n    struct fieldChange{\n        bool approved;\n        uint fieldNum;\n        string newVal;\n    }\n\n    struct Address{\n        string line1;\n        string pinCode;\n    }\n\n    struct Biometrics{\n        string faceVector; // can be made vector\n        string fingerPrint; \n    }\n\n    struct DID{\n        string _name; \n        string _dateOfBirth; \n        string _fatherName; \n        string _motherName; \n        Address _address; \n        Biometrics _biometrics;\n        string _phoneNumber;\n        STATUS _status;\n        fieldChange _governmentApproval;\n        fieldChange _ownerApproval;          \n        bool exists;\n    }\n\n    mapping (address => DID) public userAddressToDID ;    \n    mapping (uint256 => string) private parameterToValue ; \n    address public owner ; \n    fieldChange initialEntry = fieldChange(false, 0, \"\");\n\n    modifier onlyOwner(){\n        require(msg.sender == owner, \"User is not authorized to add new user\");\n        _;  \n    }\n\n    constructor () {\n        owner = msg.sender ; \n    }\n\n    function changeOwner(\n        address _newOwner\n    ) public onlyOwner {\n        owner = _newOwner ; \n    }\n\n    function addUser(\n        string memory _name, \n        string memory _dateOfBirth, \n        string memory _fatherName, \n        string memory _motherName, \n        string memory _addrLine1, \n        string memory _pinCode, \n        string memory _faceVector, \n        string memory _fingerPrint, \n        string memory _phoneNumber, \n        address _user\n    ) \n        public \n        onlyOwner\n    {\n        if(userAddressToDID[_user].exists) return ;  \n        Address memory userAddress = Address(\n            _addrLine1, \n            _pinCode\n        ); \n\n        Biometrics memory userBiometrics = Biometrics(\n            _faceVector, \n            _fingerPrint\n        );  \n        userAddressToDID[_user] = DID(\n            _name, \n            _dateOfBirth, \n            _fatherName, \n            _motherName, \n            userAddress,\n            userBiometrics, \n            _phoneNumber, \n            STATUS.ACTIVE, \n            fieldChange(false, 1, \"\"), \n            fieldChange(false, 1, \"\"), \n            true\n        );\n    }\n\n    function updateUserInfo(\n        address walletAddress,\n        uint field, \n        string memory newVal\n    ) private {\n\n        if(field==1) userAddressToDID[walletAddress]._name = newVal ;\n        else if(field==2) userAddressToDID[walletAddress]._dateOfBirth = newVal ;\n        else if(field==3) userAddressToDID[walletAddress]._fatherName = newVal ;\n        else if(field==4) userAddressToDID[walletAddress]._motherName = newVal ;\n        else if(field==5) userAddressToDID[walletAddress]._address.line1 = newVal ;\n        else if(field==6) userAddressToDID[walletAddress]._address.pinCode = newVal ;\n        else if(field==7) userAddressToDID[walletAddress]._biometrics.faceVector = newVal ;\n        else if(field==8) userAddressToDID[walletAddress]._biometrics.fingerPrint = newVal ;\n        else if(field==9) userAddressToDID[walletAddress]._phoneNumber = newVal ;\n        else userAddressToDID[walletAddress]._status = STATUS.REVOKED ; \n\n        userAddressToDID[walletAddress]._governmentApproval = initialEntry;\n        userAddressToDID[walletAddress]._ownerApproval = initialEntry;      \n    }\n\n    function isApproved (address walletAddress) view private returns(bool) {\n        if(!userAddressToDID[walletAddress]._governmentApproval.approved ||\n            !userAddressToDID[walletAddress]._ownerApproval.approved\n        ){\n            return false; \n        }\n        if(userAddressToDID[walletAddress]._governmentApproval.fieldNum != \n            userAddressToDID[walletAddress]._ownerApproval.fieldNum){\n                return false; \n        }\n        string memory str1 = userAddressToDID[walletAddress]._governmentApproval.newVal ; \n        string memory str2 = userAddressToDID[walletAddress]._ownerApproval.newVal ; \n\n        if(bytes(str1).length != bytes(str2).length ) return false; \n        for(uint i =0 ; i<bytes(str1).length ; i++ ){\n            if(bytes(str1)[i]!=bytes(str2)[i]) return false; \n        }\n        return true; \n    }\n\n    function approveChange(\n        address walletAddress, \n        uint field, \n        string memory newVal \n    ) public {\n        if(userAddressToDID[walletAddress]._status == STATUS.REVOKED) return; \n        if(owner == msg.sender) userAddressToDID[walletAddress]._governmentApproval = fieldChange(true, field, newVal);  \n        else if (walletAddress == msg.sender) userAddressToDID[walletAddress]._ownerApproval = fieldChange(true, field, newVal); \n\n        if(isApproved(walletAddress)){\n            updateUserInfo(walletAddress, field, newVal); \n        }\n    }\n\n    function getInfo(\n        address walletAddress, \n        uint field\n    )\n    public view returns(string memory)\n    {\n        \n        if(field==1) return userAddressToDID[walletAddress]._name ;\n        else if(field==2) return userAddressToDID[walletAddress]._dateOfBirth  ;\n        else if(field==3) return userAddressToDID[walletAddress]._fatherName  ;\n        else if(field==4) return userAddressToDID[walletAddress]._motherName  ;\n        else if(field==5) return userAddressToDID[walletAddress]._address.line1  ;\n        else if(field==6) return userAddressToDID[walletAddress]._address.pinCode  ;\n        else if(field==7) return userAddressToDID[walletAddress]._biometrics.faceVector  ;\n        else if(field==8) return userAddressToDID[walletAddress]._biometrics.fingerPrint  ;\n        else if(field==9) return userAddressToDID[walletAddress]._phoneNumber ;\n\n        return \"\" ; \n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
