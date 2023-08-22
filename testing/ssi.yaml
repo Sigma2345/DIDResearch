@@ -1,0 +1,18 @@
+config:
+  # target: 'http://' (BASE URL)
+  phases:
+    - duration: 10
+      arrivalRate: 5
+      # rampTo: 5
+      name: SSI AADHAR
+  defaults:
+    headers:
+      Authorization: "Bearer "
+scenarios:
+  - name: "CLIENTS REGISTERING"
+    flow:
+      - get:
+          # url: '/.../..'
+          expect:
+            - statusCode: 200
+          
