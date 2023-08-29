@@ -3,16 +3,27 @@ pragma solidity ^0.8.9;
 
 /**
  * @title MultiSig DID Contract
- * @author Mohammad Touseef, Aryan, Mudit Jain, Dr. Harkeerat Kaur
+ * @author Aryan Shukla, Mohammad Touseef, Mudit Jain, Dr. Harkeerat Kaur
  * @notice This contract is just used for demonstration and experimental purposes
  */
 contract MultiSigDID{
+
+    error MultiSigDID__userAlreadyExists(); 
+    error MultiSigDID__userIDisRevoked() ; 
+    error MultiSigDID__NotOwner();
+
+    event newUserReg(
+        address user
+    ); 
 
     enum STATUS{
         ACTIVE,
         REVOKED
     }
 
+    /**
+     * This struct stores that the approval for a change is approved by both the owner and the government
+     */
     struct fieldChange{
         bool approved;
         uint fieldNum;
@@ -29,6 +40,9 @@ contract MultiSigDID{
         string fingerPrint; 
     }
 
+    /**
+     * This struct stores most of the information of the DID
+     */
     struct DID{
         string _name; 
         string _dateOfBirth; 
@@ -49,7 +63,9 @@ contract MultiSigDID{
     fieldChange initialEntry = fieldChange(false, 0, "");
 
     modifier onlyOwner(){
-        require(msg.sender == owner, "User is not authorized to add new user");
+        if(msg.sender != owner){
+            revert MultiSigDID__NotOwner() ;
+        }
         _;  
     }
 
@@ -63,6 +79,19 @@ contract MultiSigDID{
         owner = _newOwner ; 
     }
 
+    /**
+     * Notice all the information stored is encrypted and as per Aadhar Card
+     * @param _name name of the user
+     * @param _dateOfBirth date of Birth of the user
+     * @param _fatherName father's name
+     * @param _motherName mother's name
+     * @param _addrLine1 address of the user
+     * @param _pinCode address of the user
+     * @param _faceVector faceVector of the user
+     * @param _fingerPrint fingerPrint of the user
+     * @param _phoneNumber phoneNumber of the user
+     * @param _user wallet address of the user
+     */
     function addUser(
         string memory _name, 
         string memory _dateOfBirth, 
@@ -75,10 +104,11 @@ contract MultiSigDID{
         string memory _phoneNumber, 
         address _user
     ) 
-        public 
+        external
         onlyOwner
     {
-        if(userAddressToDID[_user].exists) return ;  
+        // the check ensures that the user is not already registered
+        if(userAddressToDID[_user].exists) revert MultiSigDID__userAlreadyExists() ;  
         Address memory userAddress = Address(
             _addrLine1, 
             _pinCode
@@ -97,17 +127,24 @@ contract MultiSigDID{
             userBiometrics, 
             _phoneNumber, 
             STATUS.ACTIVE, 
-            fieldChange(false, 1, ""), 
-            fieldChange(false, 1, ""), 
+            initialEntry, 
+            initialEntry, 
             true
         );
+        emit newUserReg(msg.sender); 
     }
 
+    /**
+     * This function is only triggered when approval from both the owner and the government is received
+     * @param walletAddress wallet address of user
+     * @param field field to change
+     * @param newVal newval to be put (encrypted)
+     */
     function updateUserInfo(
         address walletAddress,
         uint field, 
         string memory newVal
-    ) private {
+    ) internal {
 
         if(field==1) userAddressToDID[walletAddress]._name = newVal ;
         else if(field==2) userAddressToDID[walletAddress]._dateOfBirth = newVal ;
@@ -124,7 +161,12 @@ contract MultiSigDID{
         userAddressToDID[walletAddress]._ownerApproval = initialEntry;      
     }
 
-    function isApproved (address walletAddress) view private returns(bool) {
+    /**
+     * This function checks if the change is approved by both the owner and the government
+     * @param walletAddress wallet address of user
+     * @return true if approved by both parties else false
+     */
+    function isApproved (address walletAddress) view internal returns(bool) {
         if(!userAddressToDID[walletAddress]._governmentApproval.approved ||
             !userAddressToDID[walletAddress]._ownerApproval.approved
         ){
@@ -144,11 +186,19 @@ contract MultiSigDID{
         return true; 
     }
 
+    /**
+     * This function can be used by government or the owner to approve a change
+     * @param walletAddress wallet address of user
+     * @param field field to change
+     * @param newVal newval to be put (encrypted)
+     * only the owner or the government can call this function 
+     * Also initiates updateUserInfo if both parties approve
+     */
     function approveChange(
         address walletAddress, 
         uint field, 
         string memory newVal 
-    ) public {
+    ) external {
         if(userAddressToDID[walletAddress]._status == STATUS.REVOKED) return; 
         if(owner == msg.sender) userAddressToDID[walletAddress]._governmentApproval = fieldChange(true, field, newVal);  
         else if (walletAddress == msg.sender) userAddressToDID[walletAddress]._ownerApproval = fieldChange(true, field, newVal); 
@@ -158,13 +208,20 @@ contract MultiSigDID{
         }
     }
 
+    /**
+     * This function returns the required information of the user
+     * @param walletAddress wallet address of user
+     * @param field field to return
+     * only the wallet owner 
+     */
     function getInfo(
         address walletAddress, 
         uint field
     )
-    public view returns(string memory)
+    external view returns(string memory)
     {
-        
+        if(userAddressToDID[walletAddress]._status == STATUS.REVOKED) revert MultiSigDID__userIDisRevoked();
+        if(walletAddress != msg.sender ) revert MultiSigDID__NotOwner() ; 
         if(field==1) return userAddressToDID[walletAddress]._name ;
         else if(field==2) return userAddressToDID[walletAddress]._dateOfBirth  ;
         else if(field==3) return userAddressToDID[walletAddress]._fatherName  ;

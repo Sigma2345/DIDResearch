@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/quaternion/ethereum/DIDSol/contracts/MultiSigDID.sol": {
-      "lastModificationDate": 1688581486168,
-      "contentHash": "9f0b13013e45f0339e97cd66862c603c",
+      "lastModificationDate": 1692615313465,
+      "contentHash": "beeefcf013a4af72287d28f760925cc1",
       "sourceName": "contracts/MultiSigDID.sol",
       "solcConfig": {
         "version": "0.8.10",
