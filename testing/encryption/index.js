@@ -1,6 +1,4 @@
-// import  'hybrid-crypto-js';
 const x = require("./node_modules/hybrid-crypto-js");
-// Basic initialization4
 
 var crypt = new x.Crypt();
 var rsa = new x.RSA();
@@ -21,51 +19,21 @@ function generateKeys() {
 }
 generateKeys();
 
-//Encryption
-// setTimeout(function (){
-// Encryption
-// },5000);
 function Encryption(message) {
-  // console.log(entropy);
-  // console.log(publicKey);
-  //   let encryptionTimeStart = new Date();
-  //   print('Encry')
-  //   var entropy ;
   var entropy = "Testing of RSA algorithm in javascript.";
   var crypt = new x.Crypt({ rsaStandard: "RSA-OAEP", entropy: entropy });
   var rsa = new x.RSA({ entropy: entropy, keySize: 4096 });
-  //   var message =
-  // "Hello, this is the demo of encryption/decryption in javascript!";
   encrypted = crypt.encrypt(publicKey, message);
-  //   console.log("encrypted", encrypted);
-  //   let encryptionTimeEnd = new Date();
-  //   console.log(
-  // `Time taken for ecryption:${encryptionTimeEnd - encryptionTimeStart}`
-  //   );
   return encrypted;
-//   return JSON.parse(encrypted);
 }
-// setTimeout(() => {
-//   Encryption();
-// }, 10000);
 
 function Decryption(encrypted) {
-  let decryptionTimeStart = new Date();
   var entropy = "Testing of RSA algorithm in javascript.";
   var crypt = new x.Crypt({ rsaStandard: "RSA-OAEP", entropy: entropy });
   var rsa = new x.RSA({ entropy: entropy });
   decrypted = crypt.decrypt(privateKey, encrypted);
-  //   console.log("decrypted", decrypted);
-  let decryptionTimeEnd = new Date();
-  console.log(
-    `Time taken for decryption${decryptionTimeEnd - decryptionTimeStart}`
-  );
   return decrypted;
 }
-// setTimeout(() => {
-//   Decryption();
-// }, 11000);
-
 function encryptPayload(
   name,
   dob,
@@ -79,10 +47,7 @@ function encryptPayload(
   status_,
   approvals
 ) {
-  // Encryption()
   let encryptionTimeStart = new Date();
-  //   print('Encry')
-  //   var entropy ;
   var enc_name = Encryption(name);
   var enc_dob = Encryption(dob);
   var enc_fname = Encryption(fname);
@@ -99,12 +64,11 @@ function encryptPayload(
     `Time taken for ecryption:${encryptionTimeEnd - encryptionTimeStart}`
   );
 
-//   console.log(name, enc_name);
   var payload = {
     NAME: enc_name,
     DOB: enc_dob,
-    "FATHER NAME": enc_fname,
-    "MOTHER NAME": enc_mname,
+    FATHER_NAME: enc_fname,
+    MOTHER_NAME: enc_mname,
     ADDRESS: {
       LINE1: enc_add_line1,
       PINCODE: enc_add_pin,
@@ -113,15 +77,29 @@ function encryptPayload(
       FACE: enc_pbiv_face,
       FINGERPRINT: enc_pbiv_fprint,
     },
-    "PHONE NUMBER": enc_pnum,
+    PHONE_NUMBER: enc_pnum,
     STATUS: status_,
     APPROVALS: approvals,
   };
-  //   console.log()
   return payload;
 }
 function decryptPayload(payload) {
-  return Decryption(payload);
+  let decryptionTimeStart = new Date();
+  var enc_name = Decryption(payload.NAME);
+  var enc_dob = Decryption(payload.DOB);
+  var enc_fname = Decryption(payload.FATHER_NAME);
+  var enc_mname = Decryption(payload.MOTHER_NAME);
+  var enc_add_line1 = Decryption(payload.ADDRESS.LINE1);
+  var enc_add_pin = Decryption(payload.ADDRESS.PINCODE);
+  var enc_pbiv_face = Decryption(payload.PBIV.FACE);
+  var enc_pbiv_fprint = Decryption(payload.PBIV.FINGERPRINT);
+  var enc_pnum = Decryption(payload.PHONE_NUMBER);
+  var status_ = Decryption(payload.STATUS);
+  var approvals = Decryption(payload.APPROVALS);
+  let decryptionTimeEnd = new Date();
+  console.log(
+    `Time taken for decryption${decryptionTimeEnd - decryptionTimeStart}`
+  );
 }
 setTimeout(() => {
   var test = encryptPayload(
@@ -137,16 +115,6 @@ setTimeout(() => {
     "ACTIVE",
     "nyhghfdhfvjbdjhbvdsvbhdjskbdkjfs"
   );
-//   console.log(test);
-//   console.log(test.length);
-//   console.log(JSON.stringify(test));
-//   console.log(JSON.stringify(test).length);
-//   console.log(test.NAME);
-//   console.log(typeof(test.NAME))
-//   console.log(decryptPayload(test.NAME));
-  // console.log(`Encrypted Payload is${JSON.stringify()}`);
+  console.log(test);
+  console.log(decryptPayload(test));
 }, 10000);
-
-// setTimeout(()=>{
-// console.log(`${decryptPayload()}`)
-// },20000);
