@@ -44,11 +44,40 @@ The Decentralized Identity Information involves the following component encrypte
     <li>
         Clone the repo using <b>git clone https://github.com/Sigma2345/DIDResearch.git</b>
     </li>
-    <li>Add all the required dependencies using comamnd <b>yarn</b> </li>
-    <li>Spin up the local hardhat node usign <b>yarn hardhat node</b></li>
-    <li>Open Another terminal window</li>
-    <li>deploy the contract using <b>yarn hardhat deploy --network localhost</b></li>
-    <li>To enter Information , use <b>yarn hardhat run scripts/enterInfo.js --network localhost</b></li>
-    <li>To get Information , use <b>yarn hardhat run scripts/getInfo.js --network localhost</b></li>
-    <li>To update Information , use <b>yarn hardhat run scripts/updateInfo.js --network localhost</b></li>
+    <li>
+        Add all the required dependencies using comamnd <b>yarn</b> 
+    </li>
+    <li>
+        Spin up the local hardhat node usign <b>yarn hardhat node</b>
+    </li>
+    <li>
+        Open Another terminal window
+    </li>
+    <li>
+        deploy the contract using <b>yarn hardhat deploy --network localhost</b>
+    </li>
+    <li>
+        To enter Information , use <b>yarn hardhat run scripts/enterInfo.js --network localhost</b>
+    </li>
+    <li>
+        To get Information , use <b>yarn hardhat run scripts/getInfo.js --network localhost</b>
+    </li>
+    <li>
+        To update Information , use <b>yarn hardhat run scripts/updateInfo.js --network localhost</b>
+    </li>
 </ol>
+
+## Observations 
+
+The scripts for encryption and decryption of payload resulted in the following observations. The payload is arranged in order of increasing payload size.
+<br></br>
+<div align="center">
+<img src = "images/RSA_Encryption_payload_vs_execution_time.png">
+<b>Encryption time taken vs payload (increasing payload size)</b>
+</img>
+<br></br>
+<img src = "images/RSA_Decryption_payload_vs_execution_time.png">
+<b>Decryption time taken vs payload (increasing payload size)</b>
+</img>
+</div>
+
