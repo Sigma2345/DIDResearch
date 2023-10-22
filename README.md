@@ -73,10 +73,12 @@ The scripts for encryption and decryption of payload resulted in the following o
 <br></br>
 <div align="center">
 <img src = "images/RSA_Encryption_payload_vs_execution_time.png">
+<br></br>
 <b>Encryption time taken vs payload (increasing payload size)</b>
 </img>
 <br></br>
 <img src = "images/RSA_Decryption_payload_vs_execution_time.png">
+<br></br>
 <b>Decryption time taken vs payload (increasing payload size)</b>
 </img>
 </div>
