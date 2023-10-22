@@ -71,7 +71,7 @@ The Decentralized Identity Information involves the following component encrypte
 
 The scripts for encryption and decryption of payload resulted in the following observations. The payload is arranged in order of increasing payload size.
 <br></br>
-<div align="center">
+<div align ="center">
 <img src = "images/RSA_Encryption_payload_vs_execution_time.png">
 <br></br>
 <b>Encryption time taken vs payload (increasing payload size)</b>
